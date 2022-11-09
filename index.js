@@ -46,6 +46,11 @@ async function run(){
             const result = await Reviews.insertOne(review);
             res.send(result);
         })        
+        app.post('/services',async(req,res)=>{
+            const review = req.body;
+            const result = await Services.insertOne(review);
+            res.send(result);
+        })        
         
     }catch(err){
         console.log(err.message);
