@@ -18,8 +18,13 @@ async function run(){
 
     try{
 
-        const Products= client.db('sidekick').collection('services');
-
+        const Services= client.db('sidekick').collection('services');
+        app.get('/services',async(req,res)=>{
+            const cursor = Services.find({})
+            const result = await cursor.toArray()
+            res.send(result)
+            console.log(result)
+        })        
         
     }catch(err){
         console.log(err.message);
