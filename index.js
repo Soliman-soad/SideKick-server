@@ -41,6 +41,15 @@ async function run(){
             const result = await cursor.toArray()
             res.send(result)
         })
+        app.get('/review/:id',async(req,res)=>{
+            const id = req.params.id;
+            const query ={
+                _id: ObjectId(id)
+            }
+            const cursor = Reviews.find(query)
+            const result = await cursor.toArray()
+            res.send(result)
+        })
         app.post('/review/:id',async(req,res)=>{
             const review = req.body;
             const result = await Reviews.insertOne(review);
@@ -54,6 +63,18 @@ async function run(){
             const result = await Reviews.deleteOne(query);
             res.send(result)
 
+        })
+        app.patch('/review/:id',async(req,res)=>{
+            const id = req.params.id;
+            const productUpdateData = req.body;
+            const filter = {
+                _id: ObjectId(id)
+            }
+            const updateDoc = {
+                $set:productUpdateData
+            }
+            const result = await Reviews.updateOne(filter,updateDoc)
+            console.log(result)
         })        
         app.post('/services',async(req,res)=>{
             const review = req.body;
