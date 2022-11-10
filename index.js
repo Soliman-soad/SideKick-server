@@ -45,6 +45,15 @@ async function run(){
             const review = req.body;
             const result = await Reviews.insertOne(review);
             res.send(result);
+        })
+        app.delete('/review/:id',async(req,res)=>{
+            const id = req.params.id;
+            const query ={
+                _id : ObjectId(id)
+            }
+            const result = await Reviews.deleteOne(query);
+            res.send(result)
+
         })        
         app.post('/services',async(req,res)=>{
             const review = req.body;
