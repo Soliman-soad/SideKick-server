@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient,ObjectId } = require('mongodb');
+var jwt = require('jsonwebtoken');
+const { response } = require('express');
 require('dotenv').config();
 const app =express();
 const port = process.env.PORT || 5000;
@@ -14,6 +16,21 @@ console.log(process.env.DB_userName,process.env.DB_password)
 const uri =`mongodb+srv://${process.env.DB_userName}:${process.env.DB_password}@cluster0.gtcxapk.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri)
 
+function verifyJWT(req,res,next){
+    const authHeader = req.headers.authorization
+    if(!authHeader){
+        return res.status(401).send({message:'unauthorize access'})
+    }
+    const token = authHeader.split(' ')[1]
+    jwt.verify(token,process.env.ACCES_TOKEN_SECRET, function(err,decoded){
+        if(err){
+            return res.status(401).send({message:'unauthorize access'})
+        }
+        req.decoded =decoded;
+        next()
+    })
+}
+
 async function run(){
 
     try{
@@ -24,6 +41,11 @@ async function run(){
             const cursor = Services.find({}).limit(3)
             const result = await cursor.toArray()
             res.send(result)
+        })
+        app.post('/jwt',(req,res)=>{
+            const user = req.body;
+            const token = jwt.sign(user,process.env.ACCES_TOKEN_SECRET,{expiresIn:'1h'})
+            res.send({token})
         })        
         app.get('/service/:id',async(req,res)=>{
             const id = req.params.id;
@@ -37,6 +59,17 @@ async function run(){
             res.send(result)
         })
         app.get('/reviews',async(req,res)=>{
+            const cursor = Reviews.find({})
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+        app.get('/review',verifyJWT,async(req,res)=>{
+            const decoded =req.decoded
+            console.log(decoded.user)
+            console.log(req.query.email)
+            if(decoded.user !== req.query.email){
+                res.send({message:'unauthorized access'})
+            }
             const cursor = Reviews.find({})
             const result = await cursor.toArray()
             res.send(result)
@@ -75,6 +108,7 @@ async function run(){
             }
             const result = await Reviews.updateOne(filter,updateDoc)
             console.log(result)
+
         })        
         app.post('/services',async(req,res)=>{
             const review = req.body;
