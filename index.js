@@ -8,10 +8,9 @@ const app =express();
 const port = process.env.PORT || 5000;
 
 
-app.use(cors());
+app.use(cors())
 app.use(express.json())
 
-console.log(process.env.DB_userName,process.env.DB_password)
 
 const uri =`mongodb+srv://${process.env.DB_userName}:${process.env.DB_password}@cluster0.gtcxapk.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri)
@@ -63,13 +62,8 @@ async function run(){
             const result = await cursor.toArray()
             res.send(result)
         })
-        app.get('/review',verifyJWT,async(req,res)=>{
-            const decoded =req.decoded
-            console.log(decoded.user)
-            console.log(req.query.email)
-            if(decoded.user !== req.query.email){
-                res.send({message:'unauthorized access'})
-            }
+        app.get('/review',async(req,res)=>{
+            
             const cursor = Reviews.find({})
             const result = await cursor.toArray()
             res.send(result)
